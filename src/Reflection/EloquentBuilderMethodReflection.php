@@ -49,12 +49,12 @@ final class EloquentBuilderMethodReflection implements MethodReflection
      */
     private $isVariadic;
 
-    public function __construct(string $methodName, ClassReflection $classReflection, array $parameters, ?Type $returnType = null, bool $isVariadic = false)
+    public function __construct(string $methodName, ClassReflection $classReflection, array $parameters, ?Type $returnType = null, bool $isVariadic = false, ?ClassReflection $originalClassReflection = null)
     {
         $this->methodName = $methodName;
         $this->classReflection = $classReflection;
         $this->parameters = $parameters;
-        $this->returnType = $returnType ?? new ObjectType(Builder::class);
+        $this->returnType = $returnType ?? $this->getReturnType($originalClassReflection);
         $this->isVariadic = $isVariadic;
     }
 
@@ -100,5 +100,21 @@ final class EloquentBuilderMethodReflection implements MethodReflection
                 $this->returnType
             ),
         ];
+    }
+
+    private function getReturnType(?ClassReflection $originalClassReflection = null): Type
+    {
+        $eloquentBuilder = new ObjectType(Builder::class);
+        $reflectingClass = $originalClassReflection ?? $this->classReflection;
+
+        if ($reflectingClass && $reflectingClass->hasNativeMethod('newEloquentBuilder')) {
+            $customBuilder = $reflectingClass->getNativeMethod('newEloquentBuilder')->getVariants()[0]->getReturnType();
+
+            if ($customBuilder->accepts(new ObjectType($reflectingClass->getName()), false)->no()) {
+                $eloquentBuilder = $customBuilder;
+            }
+        }
+
+        return $eloquentBuilder;
     }
 }

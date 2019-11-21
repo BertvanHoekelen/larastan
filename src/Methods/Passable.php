@@ -67,6 +67,11 @@ final class Passable implements PassableContract
     private $staticAllowed = false;
 
     /**
+     * @var \PHPStan\Reflection\ClassReflection
+     */
+    private $originalClassReflection;
+
+    /**
      * Method constructor.
      *
      * @param \PHPStan\Reflection\Php\PhpMethodReflectionFactory $methodReflectionFactory
@@ -87,6 +92,7 @@ final class Passable implements PassableContract
         $this->pipeline = $pipeline;
         $this->classReflection = $classReflection;
         $this->methodName = $methodName;
+        $this->originalClassReflection = $classReflection;
     }
 
     /**
@@ -195,16 +201,16 @@ final class Passable implements PassableContract
 
         $this->setStaticAllowed($this->staticAllowed ?: $staticAllowed);
 
-        $originalClassReflection = $this->classReflection;
+//        $this->originalClassReflection = $this->classReflection;
         $this->pipeline->send($this->setClassReflection($classReflection))
             ->then(
-                function (PassableContract $passable) use ($originalClassReflection) {
+                function (PassableContract $passable) {
                     if ($passable->hasFound()) {
                         $this->setMethodReflection($passable->getMethodReflection());
                         $this->setStaticAllowed($passable->isStaticAllowed());
                     }
 
-                    $this->setClassReflection($originalClassReflection);
+                    $this->setClassReflection($this->originalClassReflection);
                 }
             );
 
@@ -236,5 +242,10 @@ final class Passable implements PassableContract
     public function getMethodReflectionFactory(): PhpMethodReflectionFactory
     {
         return $this->methodReflectionFactory;
+    }
+
+    public function getOriginalClassReflection(): ClassReflection
+    {
+        return $this->originalClassReflection;
     }
 }

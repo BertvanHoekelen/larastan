@@ -46,6 +46,9 @@ class FeaturesTest extends TestCase
             $calls[str_replace($baseDir, '', $fullPath)] = [$fullPath];
         }
 
+//        dd($calls);
+        return [['/Users/bertvanhoekelen/Code/opensource/larastan/tests/Features/Methods/ModelExtension.php']];
+
         return $calls;
     }
 

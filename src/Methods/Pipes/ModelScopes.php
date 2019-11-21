@@ -49,7 +49,8 @@ final class ModelScopes implements PipeContract
             $passable->setMethodReflection(new EloquentBuilderMethodReflection(
                 $scopeMethodName,
                 $passable->getBroker()->getClass(Builder::class),
-                $parameters)
+                $parameters,
+            null, false, $passable->getOriginalClassReflection()),
             );
 
             $found = true;

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Features\Methods;
 
+use App\Account;
+use App\AccountBuilder;
 use App\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -27,9 +29,20 @@ class ModelExtension
         return $user;
     }
 
+    public function testReturnThisReturnsCustomBuilder(): AccountBuilder
+    {
+        return Account::join('tickets.tickets', 'tickets.tickets.id', '=', 'tickets.sale_ticket.ticket_id')
+            ->where(['foo' => 'bar']);
+    }
+
     public function testWhere(): Builder
     {
         return (new Thread)->where(['foo' => 'bar']);
+    }
+
+    public function testWhereWithCustomBuilder(): AccountBuilder
+    {
+        return (new Account())->where(['foo' => 'bar']);
     }
 
     public function testStaticWhere(): Builder
@@ -40,6 +53,11 @@ class ModelExtension
     public function testDynamicWhere(): Builder
     {
         return (new Thread)->whereFoo(['bar']);
+    }
+
+    public function testDynamicWhereReturnsCustomBuilder(): AccountBuilder
+    {
+        return (new Account())->whereFoo(['bar']);
     }
 
     public function testStaticDynamicWhere(): Builder
@@ -111,10 +129,10 @@ class ModelExtension
         return User::first();
     }
 
-//    public function testMake() : User
-//    {
-//        return User::make([]);
-//    }
+    public function testMake() : User
+    {
+        return User::make([]);
+    }
 
     public function testCreate() : User
     {
@@ -149,6 +167,11 @@ class ModelExtension
     public function testScope() : Builder
     {
         return Thread::valid();
+    }
+
+    public function testScopeWithCustomBuilder() : AccountBuilder
+    {
+        return Account::active();
     }
 
     public function testMacro(Builder $query) : Builder
@@ -189,6 +212,13 @@ class ModelExtension
     public function testCustomMethodsStartingWithFind()
     {
         return Thread::findAllFooBarThreads();
+    }
+
+    public function testRelationScope(): AccountBuilder
+    {
+        $user = new User();
+
+        return $user->accounts()->active();
     }
 }
 

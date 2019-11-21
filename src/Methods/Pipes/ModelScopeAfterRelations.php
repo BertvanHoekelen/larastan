@@ -38,6 +38,7 @@ final class ModelScopeAfterRelations implements PipeContract
             ! $classReflection->isAbstract() &&
             ! $builderClass->hasNativeMethod($passable->getMethodName())
         ) {
+
             $passable->setMethodReflection(
                 new ModelScopeMethodReflection(
                     $passable->getMethodName(),

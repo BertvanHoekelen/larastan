@@ -14,17 +14,19 @@ declare(strict_types=1);
 namespace NunoMaduro\Larastan\Methods\Pipes;
 
 use Closure;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Str;
 use NunoMaduro\Larastan\Contracts\Methods\PassableContract;
 use NunoMaduro\Larastan\Contracts\Methods\Pipes\PipeContract;
 use NunoMaduro\Larastan\Reflection\EloquentBuilderMethodReflection;
 use PHPStan\Reflection\ParametersAcceptorSelector;
+use PHPStan\Type\ObjectType;
 
 /**
  * @internal
  */
-final class BuilderDynamicWheres implements PipeContract
+final class CustomBuilder implements PipeContract
 {
     /**
      * {@inheritdoc}
@@ -37,25 +39,7 @@ final class BuilderDynamicWheres implements PipeContract
                 Builder::class
             );
 
-        if ($isInstanceOfBuilder && Str::startsWith($passable->getMethodName(), 'where')) {
-            $methodReflection = $classReflection->getNativeMethod('dynamicWhere');
-
-            /** @var \PHPStan\Reflection\FunctionVariantWithPhpDocs $originalDynamicWhereVariant */
-            $originalDynamicWhereVariant = ParametersAcceptorSelector::selectSingle($methodReflection->getVariants());
-
-            $returnMethodReflection = new EloquentBuilderMethodReflection(
-                $passable->getMethodName(),
-                $classReflection,
-                [$originalDynamicWhereVariant->getParameters()[1]],
-                null,
-                false,
-                $passable->getOriginalClassReflection()
-            );
-
-            $passable->setMethodReflection($returnMethodReflection);
-
-            $found = true;
-        }
+        dump($classReflection->getName());
 
         if (! $found) {
             $next($passable);

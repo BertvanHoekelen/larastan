@@ -102,4 +102,6 @@ interface PassableContract
      * @return \PHPStan\Reflection\Php\PhpMethodReflectionFactory
      */
     public function getMethodReflectionFactory(): PhpMethodReflectionFactory;
+
+    public function getOriginalClassReflection(): ClassReflection;
 }
